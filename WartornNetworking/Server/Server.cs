@@ -264,6 +264,7 @@ namespace WartornNetworking.Server
              && room.ClientsCount == 0)
             {
                 rooms.Remove(room.roomID);
+                File.AppendAllText("incomingconnection.txt", room.roomID + " removed for having no active client." + Environment.NewLine);
             }
 
             ClientDisconnected?.Invoke(sender,new ServerEventArgs(client,null));
