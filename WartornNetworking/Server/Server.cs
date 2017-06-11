@@ -122,9 +122,6 @@ namespace WartornNetworking.Server
             Client client = clients.First(c => { return c.Value.tcpclient.IsEqual(e.TcpClient); }).Value;
             Room room = FindRoomThatHaveClient(client);
 
-            File.AppendAllText("log.txt", string.Format("{0},{1} : {2}{3}", client.clientID, (IPEndPoint)client.tcpclient.Client.RemoteEndPoint, msg, Environment.NewLine));
-            PackageDataReceived?.Invoke(sender, new ServerEventArgs(client, msg));
-
             if (msg.messages == Messages.Request)
             {
                 switch (msg.commands)
@@ -246,6 +243,8 @@ namespace WartornNetworking.Server
                         break;
                 }
             }
+
+            PackageDataReceived?.Invoke(sender, new ServerEventArgs(client, msg));
         }
         #endregion
 
