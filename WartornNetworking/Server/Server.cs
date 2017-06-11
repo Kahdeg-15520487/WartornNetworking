@@ -186,6 +186,7 @@ namespace WartornNetworking.Server
                             stringbuilder.Append("|" + kvp.Value.roomID);
                         }
                         reply = new Package(Messages.Success, Commands.Inform, stringbuilder.ToString());
+                        SendPackageToClient(client, reply);
                         break;
 
                     //get the roomid of the client
@@ -253,6 +254,7 @@ namespace WartornNetworking.Server
                             stringbuilder.Append("|" + kvp.Value.clientID);
                         }
                         reply = new Package(Messages.Success, Commands.Inform, stringbuilder.ToString());
+                        SendPackageToClient(client, reply);
                         break;
 
                     //get the clientID of the client
