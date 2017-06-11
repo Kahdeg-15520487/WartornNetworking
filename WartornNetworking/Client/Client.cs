@@ -64,6 +64,22 @@ namespace WartornNetworking.Client
         }
 
         /// <summary>
+        /// request the roomid list from server
+        /// </summary>
+        /// <returns>the roomid list</returns>
+        public IEnumerable<string> GetRooms()
+        {
+            Package package = new Package(Messages.Request, Commands.GetRooms, "");
+            Package reply = SendPackageToServer(package, isGetReply: true);
+            var datas = reply.data.Split('|');
+            int roomCount = int.Parse(datas[0]);
+            for (int i = 1; i <= roomCount; i++)
+            {
+                yield return datas[i];
+            }
+        }
+
+        /// <summary>
         /// request that the server send the roomId in which the client is currently reside in
         /// </summary>
         /// <returns>the roomID</returns>
@@ -102,6 +118,22 @@ namespace WartornNetworking.Client
         }
 
         /// <summary>
+        /// request the clientID list from the server
+        /// </summary>
+        /// <returns>the clientID list</returns>
+        public IEnumerable<string> GetClients()
+        {
+            Package package = new Package(Messages.Request, Commands.GetClients, "");
+            Package reply = SendPackageToServer(package, isGetReply: true);
+            var datas = reply.data.Split('|');
+            int roomCount = int.Parse(datas[0]);
+            for (int i = 1; i <= roomCount; i++)
+            {
+                yield return datas[i];
+            }
+        }
+
+        /// <summary>
         /// get the clientid of this client
         /// </summary>
         /// <returns>the clientid</returns>
@@ -112,6 +144,12 @@ namespace WartornNetworking.Client
             return reply.data;
         }
 
+        /// <summary>
+        /// send a package to server
+        /// </summary>
+        /// <param name="package">the package to be sent</param>
+        /// <param name="isGetReply">true if want a reply</param>
+        /// <returns>a package if isGetReply = true or null if isGetReply = false</returns>
         private Package SendPackageToServer(Package package, bool isGetReply = false)
         {
             string packageConverted = JsonConvert.SerializeObject(package);
