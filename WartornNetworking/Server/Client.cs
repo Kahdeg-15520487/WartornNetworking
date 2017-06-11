@@ -6,6 +6,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using WartornNetworking.SimpleTcp;
 using WartornNetworking.SimpleTCP.Server;
 
 namespace WartornNetworking.Server
@@ -16,6 +17,8 @@ namespace WartornNetworking.Server
         public readonly TcpClient tcpclient;
 
         public string roomID { get; set; } = string.Empty;
+        public IPEndPoint IP { get { return (IPEndPoint)tcpclient.Client.RemoteEndPoint; } }
+        public TcpState State { get { return tcpclient.GetState(); } }
 
         public Client(TcpClient c)
         {
@@ -25,23 +28,17 @@ namespace WartornNetworking.Server
 
         public bool Equals(Client other)
         {
-            return string.Compare(clientID, other.clientID) == 0 || tcpclient == other.tcpclient;
+            return string.Compare(clientID, other.clientID) == 0 || tcpclient.IsEqual(other.tcpclient);
         }
 
-        public IPEndPoint IP
+        public static bool operator ==(Client client1, Client client2)
         {
-            get
-            {
-                return (IPEndPoint)tcpclient.Client.RemoteEndPoint;
-            }
+            return client1.Equals(client2);
         }
 
-        public TcpState State
+        public static bool operator !=(Client client1, Client client2)
         {
-            get
-            {
-                return tcpclient.GetState();
-            }
+            return !client1.Equals(client2);
         }
     }
 }

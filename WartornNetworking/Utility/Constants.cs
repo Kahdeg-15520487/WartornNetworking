@@ -13,14 +13,16 @@
 
         public enum Commands
         {
-            Disconnect,  //disconnect from the server
+            Disconnect, //disconnect from the server
             Message,    //send to a client in the same room with <clientId> the message of <msg>
             Broadcast,  //send the message of <msg> to every client in the same room
             Inform,     //inform the server/client about something
-            GetRoom,    //request the roomid of this client
+            GetRooms,   //request the roomid list from the server
+            GetRoomID,  //request the roomid of this client
             CreateRoom, //request to create a room
             JoinRoom,   //request to join the room with <roomId>
-            GetClientID //request the clientid of this client
+            GetClientID,//request the clientid of this client
+            GetClients  //request the clientid list of every client in the same room
         }
 
         public static class Constants

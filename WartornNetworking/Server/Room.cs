@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WartornNetworking.Server
 {
-    public class Room
+    public class Room :IEquatable<Room>
     {
         public string name { get; set; }
         public readonly string roomID;
@@ -58,6 +58,21 @@ namespace WartornNetworking.Server
         internal bool ContainClient(Client client)
         {
             return clients.ContainsKey(client.clientID);
+        }
+
+        public bool Equals(Room other)
+        {
+            return string.Compare(this.roomID, other.roomID) == 0;
+        }
+
+        public static bool operator ==(Room room1, Room room2)
+        {
+            return room1.Equals(room2);
+        }
+
+        public static bool operator !=(Room room1,Room room2)
+        {
+            return !room1.Equals(room2);
         }
     }
 }

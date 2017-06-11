@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using WartornNetworking.Utility;
 using System.IO;
 using WartornNetworking.SimpleTCP.Server;
+using WartornNetworking.SimpleTcp;
 
 namespace WartornNetworking.Server
 {
@@ -182,7 +183,7 @@ namespace WartornNetworking.Server
                     //get the roomid of the client
                     //package data content:
                     //<Empty>
-                    case Commands.GetRoom:
+                    case Commands.GetRoomID:
                         //send the roomid to the client if the client is already in a room
                         reply = new Package(Messages.Success, Commands.Inform, client.roomID);
                         //and send that roomid to the client
@@ -250,16 +251,31 @@ namespace WartornNetworking.Server
 
         private void Server_ClientDisconnected(object sender, TcpClient e)
         {
+            //remove client from client list
             Client client = clients.First(c => { return c.Value.tcpclient.IsEqual(e); }).Value;
             clients.Remove(client.clientID);
 
+            //remove client from its room
             Room room = FindRoomThatHaveClient(client);
             room.RemoveClient(client);
+
+            //check if the room is empty and not the <hall>
+            if (room != hall
+             && room.ClientsCount == 0)
+            {
+                rooms.Remove(room.roomID);
+            }
 
             ClientDisconnected?.Invoke(sender,new ServerEventArgs(client,null));
         }
 
         #region public method
+
+        public void SendMessage(Client client,string message)
+        {
+            Package package = new Package(Messages.Request, Commands.Message, "server" + "|" + message);
+            SendPackageToClient(client, package);
+        }
 
         public void BroadcastMessage(string message)
         {

@@ -52,6 +52,7 @@
     <Compile Include="Server\Server.cs" />
     <Compile Include="SimpleTcp\Message.cs" />
     <Compile Include="SimpleTcp\ServerListener\ServerListener.cs" />
+    <Compile Include="SimpleTcp\ServerListener\TcpClientExtensionMethod.cs" />
     <Compile Include="SimpleTcp\ServerListener\TcpListenerEx.cs" />
     <Compile Include="SimpleTcp\SimpleTcpClient.cs" />
     <Compile Include="SimpleTcp\SimpleTcpServer.cs" />

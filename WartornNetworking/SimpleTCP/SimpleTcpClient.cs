@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WartornNetworking.SimpleTcp;
 
 namespace WartornNetworking
 {
@@ -28,6 +29,7 @@ namespace WartornNetworking
 
             public event EventHandler<Message> DelimiterDataReceived;
             public event EventHandler<Message> DataReceived;
+            public event EventHandler Disconnected;
 
             internal bool QueueStop { get; set; }
             internal int ReadLoopIntervalMs { get; set; }
@@ -94,16 +96,9 @@ namespace WartornNetworking
                 var delimiter = this.Delimiter;
                 var c = _client;
 
-                int bytesAvailable = c.Available;
-                if (bytesAvailable == 0)
-                {
-                    System.Threading.Thread.Sleep(10);
-                    return;
-                }
-
                 List<byte> bytesReceived = new List<byte>();
 
-                while (c.Available > 0 && c.Connected)
+                while (c.Available > 0 && c.IsConnected())
                 {
                     byte[] nextByte = new byte[1];
                     c.Client.Receive(nextByte, 0, 1, SocketFlags.None);
@@ -123,6 +118,11 @@ namespace WartornNetworking
                 if (bytesReceived.Count > 0)
                 {
                     NotifyEndTransmissionRx(c, bytesReceived.ToArray());
+                }
+
+                if (c.IsDisconnected())
+                {
+                    Disconnected?.Invoke(this, new EventArgs());
                 }
             }
 

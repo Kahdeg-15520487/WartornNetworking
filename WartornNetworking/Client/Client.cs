@@ -36,7 +36,8 @@ namespace WartornNetworking.Client
 
             client.Connect(ipaddress.ToString(), Port);
 
-            client.DelimiterDataReceived += Tcpclient_DelimiterDataReceived;    
+            client.DelimiterDataReceived += Tcpclient_DelimiterDataReceived;
+            client.Disconnected += OnDisconnected;
         }
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace WartornNetworking.Client
         /// <returns>the roomID</returns>
         public string GetRoomID()
         {
-            Package package = new Package(Messages.Request, Commands.GetRoom, "");
+            Package package = new Package(Messages.Request, Commands.GetRoomID, "");
             Package reply = SendPackageToServer(package,isGetReply: true);
             string roomId = reply.data;
             //do something with the received roomId;
@@ -147,6 +148,11 @@ namespace WartornNetworking.Client
         private void OnMessageReceived(Package package)
         {
             MessageReceived?.Invoke(this, new ClientEventArts(package));
+        }
+
+        private void OnDisconnected(object sender, EventArgs e)
+        {
+            Disconnected?.Invoke(this, new ClientEventArts(null));
         }
     }
 
