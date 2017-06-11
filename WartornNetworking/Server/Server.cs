@@ -121,7 +121,7 @@ namespace WartornNetworking.Server
             Package reply;
             Client client = clients.First(c => { return c.Value.tcpclient.IsEqual(e.TcpClient); }).Value;
             Room room = FindRoomThatHaveClient(client);
-
+            StringBuilder stringbuilder;
             if (msg.messages == Messages.Request)
             {
                 switch (msg.commands)
@@ -175,6 +175,17 @@ namespace WartornNetworking.Server
                         //return Inform
                         //return data empty
                         SendPackageToClient(client, new Package(Messages.Success, Commands.Inform, ""));
+                        break;
+
+                    //get the roomid list
+                    case Commands.GetRooms:
+                        stringbuilder = new StringBuilder();
+                        stringbuilder.Append(rooms.Count);
+                        foreach (var kvp in rooms)
+                        {
+                            stringbuilder.Append("|" + kvp.Value.roomID);
+                        }
+                        reply = new Package(Messages.Success, Commands.Inform, stringbuilder.ToString());
                         break;
 
                     //get the roomid of the client
@@ -231,6 +242,17 @@ namespace WartornNetworking.Server
                             reply = new Package(Messages.Fail, Commands.Inform, "No such room!");
                         }
                         SendPackageToClient(client, reply);
+                        break;
+
+                    //get the roomid list
+                    case Commands.GetClients:
+                        stringbuilder = new StringBuilder();
+                        stringbuilder.Append(room.clients.Count);
+                        foreach (var kvp in room.clients)
+                        {
+                            stringbuilder.Append("|" + kvp.Value.clientID);
+                        }
+                        reply = new Package(Messages.Success, Commands.Inform, stringbuilder.ToString());
                         break;
 
                     //get the clientID of the client
