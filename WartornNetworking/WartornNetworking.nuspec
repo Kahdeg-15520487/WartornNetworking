@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Kahdeg</authors>
+    <owners>Kahdeg</owners>
+    <projectUrl>https://github.com/Kahdeg-15520487/WartornNetworking</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A network library wraper. Using a self-modified of SimpleTcp by BrandonPotter</description>
+    <copyright>Copyright 2017</copyright>
+  </metadata>
+</package>
