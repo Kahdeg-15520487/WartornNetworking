@@ -60,6 +60,22 @@ namespace WartornNetworking.Server
             return clients.ContainsKey(client.clientID);
         }
 
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 91;
+                // Suitable nullity checks etc, of course :)
+                hash = hash * 101 + roomID.GetHashCode();
+                return hash;
+            }
+        }
+
+        public override bool Equals(object o)
+        {
+            return (o.GetType() == typeof(Room)) && this.Equals((Room)o);
+        }
+
         public bool Equals(Room other)
         {
             return string.Compare(this.roomID, other.roomID) == 0;

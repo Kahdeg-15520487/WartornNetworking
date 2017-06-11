@@ -50,7 +50,7 @@ namespace WartornNetworking.Client
         {
             Package package = new Package(Messages.Request, Commands.Message, clientId + "|" + message);
             Package reply = SendPackageToServer(package, isGetReply: true);
-            return reply.messages == Messages.Success;
+            return reply != null && reply.messages == Messages.Success;
         }
 
         /// <summary>
@@ -71,6 +71,12 @@ namespace WartornNetworking.Client
         {
             Package package = new Package(Messages.Request, Commands.GetRooms, "");
             Package reply = SendPackageToServer(package, isGetReply: true);
+            if (reply == null)
+            {
+                yield return null;
+                yield break;
+            }
+
             var datas = reply.data.Split('|');
             int roomCount = int.Parse(datas[0]);
             for (int i = 1; i <= roomCount; i++)
@@ -87,6 +93,10 @@ namespace WartornNetworking.Client
         {
             Package package = new Package(Messages.Request, Commands.GetRoomID, "");
             Package reply = SendPackageToServer(package,isGetReply: true);
+            if (reply == null)
+            {
+                return null;
+            }
             string roomId = reply.data;
             //do something with the received roomId;
             return roomId;
@@ -100,6 +110,10 @@ namespace WartornNetworking.Client
         {
             Package package = new Package(Messages.Request, Commands.CreateRoom, "");
             Package reply = SendPackageToServer(package, isGetReply: true);
+            if (reply == null)
+            {
+                return null;
+            }
             string roomId = reply.data;
             //do something with the received roomId
             return roomId;
@@ -114,7 +128,7 @@ namespace WartornNetworking.Client
         {
             Package package = new Package(Messages.Request, Commands.JoinRoom, roomId);
             Package reply = SendPackageToServer(package, isGetReply: true);
-            return reply.messages == Messages.Success;
+            return reply != null && reply.messages == Messages.Success;
         }
 
         /// <summary>
@@ -125,6 +139,11 @@ namespace WartornNetworking.Client
         {
             Package package = new Package(Messages.Request, Commands.GetClients, "");
             Package reply = SendPackageToServer(package, isGetReply: true);
+            if (reply == null)
+            {
+                yield return null;
+                yield break;
+            }
             var datas = reply.data.Split('|');
             int roomCount = int.Parse(datas[0]);
             for (int i = 1; i <= roomCount; i++)
@@ -141,6 +160,10 @@ namespace WartornNetworking.Client
         {
             Package package = new Package(Messages.Request, Commands.GetClientID, "");
             Package reply = SendPackageToServer(package, isGetReply: true);
+            if (reply == null)
+            {
+                return null;
+            }
             return reply.data;
         }
 
@@ -156,6 +179,10 @@ namespace WartornNetworking.Client
             if (isGetReply)
             {
                 Message reply = client.WriteLineAndGetReply(packageConverted, TimeSpan.FromSeconds(Constants.MaxTimeOut));
+                if (reply == null)
+                {
+                    return null;
+                }
                 string message = reply.MessageString.Remove(reply.MessageString.Length - 1);
                 Package replyPackage = JsonConvert.DeserializeObject<Package>(message);
                 return replyPackage;

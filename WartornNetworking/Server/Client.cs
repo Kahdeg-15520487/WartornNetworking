@@ -26,9 +26,26 @@ namespace WartornNetworking.Server
             tcpclient = c;
         }
 
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 91;
+                // Suitable nullity checks etc, of course :)
+                hash = hash * 101 + clientID.GetHashCode();
+                hash = hash * 101 + tcpclient.GetHashCode();
+                return hash;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return (obj.GetType() == typeof(Client)) && this.Equals((Client)obj);
+        }
+
         public bool Equals(Client other)
         {
-            return string.Compare(clientID, other.clientID) == 0 || tcpclient.IsEqual(other.tcpclient);
+            return string.Compare(this.clientID, other.clientID) == 0 || this.tcpclient.IsEqual(other.tcpclient);
         }
 
         public static bool operator ==(Client client1, Client client2)
