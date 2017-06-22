@@ -159,7 +159,8 @@ namespace WartornNetworking.Client
         public string GetClientID()
         {
             Package package = new Package(Messages.Request, Commands.GetClientID, "");
-            Package reply = SendPackageToServer(package, isGetReply: true);
+            Package reply = null;
+            reply = SendPackageToServer(package, isGetReply: true);
             if (reply == null)
             {
                 return null;
@@ -178,7 +179,8 @@ namespace WartornNetworking.Client
             string packageConverted = JsonConvert.SerializeObject(package);
             if (isGetReply)
             {
-                Message reply = client.WriteLineAndGetReply(packageConverted, TimeSpan.FromSeconds(Constants.MaxTimeOut));
+                Message reply = null;
+                reply = client.WriteLineAndGetReply(packageConverted, TimeSpan.FromSeconds(Constants.MaxTimeOut));
                 if (reply == null)
                 {
                     return null;

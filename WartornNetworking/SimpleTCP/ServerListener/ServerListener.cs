@@ -95,7 +95,6 @@ namespace WartornNetworking.SimpleTCP.Server
 				var newClient = _listener.AcceptTcpClient();
 				_connectedClients.Add(newClient);
                 _parent.NotifyClientConnected(this, newClient);
-                System.IO.File.AppendAllText("incomingconnection.txt", ((IPEndPoint)_connectedClients[_connectedClients.Count - 1].Client.RemoteEndPoint).Address + ":" + ((IPEndPoint)_connectedClients[_connectedClients.Count - 1].Client.RemoteEndPoint).Port + " connected" + Environment.NewLine);
             }
             
             _delimiter = _parent.Delimiter;
@@ -113,8 +112,6 @@ namespace WartornNetworking.SimpleTCP.Server
                     if (nextByte[0] == _delimiter)
                     {
                         byte[] msg = _queuedMsg.ToArray();
-                        var daata = (Encoding.UTF8).GetString(msg);
-                        System.IO.File.AppendAllText("incomingconnection.txt", ((IPEndPoint)_connectedClients[_connectedClients.Count - 1].Client.RemoteEndPoint).Address + ":" + ((IPEndPoint)_connectedClients[_connectedClients.Count - 1].Client.RemoteEndPoint).Port + " sent : " + daata + Environment.NewLine);
                         _queuedMsg.Clear();
                         _parent.NotifyDelimiterMessageRx(this, c, msg);
                     } else

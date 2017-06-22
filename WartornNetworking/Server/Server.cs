@@ -62,6 +62,7 @@ namespace WartornNetworking.Server
 
         private void Server_ClientConnected(object sender, TcpClient e)
         {
+            File.AppendAllText("log.txt", ((IPEndPoint)e.Client.RemoteEndPoint) + " connected" + Environment.NewLine);
             Client client = new Client(e);
             clients.Add(client.clientID,client);
             hall.AddClient(client);
@@ -84,7 +85,9 @@ namespace WartornNetworking.Server
 
         private void SendPackageToClient(Client client,Package package)
         {
-            server.WriteLine(client.tcpclient, JsonConvert.SerializeObject(package));
+            string data = JsonConvert.SerializeObject(package);
+            server.WriteLine(client.tcpclient, data);
+            File.AppendAllText("log.txt", "server sent " + ((IPEndPoint)client.tcpclient.Client.RemoteEndPoint) + " : " + data + Environment.NewLine);
         }
         #endregion
 
@@ -122,6 +125,9 @@ namespace WartornNetworking.Server
         #region handle package receive
         private void Server_DelimiterDataReceived(object sender, Message e)
         {
+            string data = (Encoding.UTF8).GetString(e.Data);
+            File.AppendAllText("log.txt", ((IPEndPoint)e.TcpClient.Client.RemoteEndPoint) + " sent : " + data + Environment.NewLine);
+
             Package msg = JsonConvert.DeserializeObject<Package>(e.MessageString);
             Package reply;
             Client client = clients.First(c => { return c.Value.tcpclient.IsEqual(e.TcpClient); }).Value;
@@ -238,6 +244,7 @@ namespace WartornNetworking.Server
                             //add the client into that room
                             room.AddClient(client);
                             //check if the currently resided room is now empty
+                            CheckAndClearEmptyRoom();
 
                             //return Success
                             //return Inform
@@ -283,6 +290,8 @@ namespace WartornNetworking.Server
 
         private void Server_ClientDisconnected(object sender, TcpClient e)
         {
+            File.AppendAllText("log.txt", ((IPEndPoint)e.Client.RemoteEndPoint) + " disconnected" + Environment.NewLine);
+
             //remove client from client list
             Client client = clients.First(c => { return c.Value.tcpclient.IsEqual(e); }).Value;
             clients.Remove(client.clientID);
@@ -291,15 +300,28 @@ namespace WartornNetworking.Server
             Room room = FindRoomThatHaveClient(client);
             room.RemoveClient(client);
 
-            //check if the room is empty and not the <hall>
-            if (room != hall
-             && room.ClientsCount == 0)
-            {
-                rooms.Remove(room.roomID);
-                File.AppendAllText("incomingconnection.txt", room.roomID + " removed for having no active client." + Environment.NewLine);
-            }
+            CheckAndClearEmptyRoom();
 
             ClientDisconnected?.Invoke(sender,new ServerEventArgs(client,null));
+        }
+
+        private void CheckAndClearEmptyRoom()
+        {
+            List<string> markedforremoval = new List<string>();
+            foreach (var kvp in rooms)
+            {
+                //check if the room is empty and not the <hall>
+                if (kvp.Value != hall
+                 && kvp.Value.ClientsCount == 0)
+                {
+                    markedforremoval.Add(kvp.Key);
+                }
+            }
+            foreach (string room in markedforremoval)
+            {
+                rooms.Remove(room);
+                File.AppendAllText("log.txt", room + " removed for having no active client." + Environment.NewLine);
+            }
         }
 
         #region public method
