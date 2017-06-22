@@ -303,3 +303,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 *.zip
+
+ClientGui/
+IPAddressControlLib/
+ServerGUI/
