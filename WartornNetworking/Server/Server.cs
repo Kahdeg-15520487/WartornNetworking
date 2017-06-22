@@ -69,6 +69,11 @@ namespace WartornNetworking.Server
         }
 
         #region client communication wrapper
+        /// <summary>
+        /// Sends the package to room.
+        /// </summary>
+        /// <param name="room">The room.</param>
+        /// <param name="package">The package.</param>
         private void SendPackageToRoom(Room room,Package package)
         {
             foreach (KeyValuePair<string,Client> kvp in room.clients)
@@ -214,6 +219,8 @@ namespace WartornNetworking.Server
                         //move client to the newly created room
                         room.AddClient(client);
                         reply = new Package(Messages.Success, Commands.Inform, room.roomID);
+                        //check if the currently resided room is now empty
+
                         //and send that roomid to the client
                         SendPackageToClient(client, reply);
                         break;
@@ -230,6 +237,8 @@ namespace WartornNetworking.Server
                             FindRoomThatHaveClient(client).RemoveClient(client);
                             //add the client into that room
                             room.AddClient(client);
+                            //check if the currently resided room is now empty
+
                             //return Success
                             //return Inform
                             //return data empty
