@@ -28,7 +28,7 @@ namespace WartornNetworking.Server
             };
         }
 
-        public SimpleTcpServer server { get; private set;}
+        public SimpleTcpServer server { get; private set; }
 
         //list of client that is connected
         public Dictionary<long, Client> clients { get; private set; }
@@ -64,7 +64,7 @@ namespace WartornNetworking.Server
         {
             File.AppendAllText("log.txt", ((IPEndPoint)e.Client.RemoteEndPoint) + " connected" + Environment.NewLine);
             Client client = new Client(e);
-            clients.Add(client.clientID,client);
+            clients.Add(client.clientID, client);
             hall.AddClient(client);
             ClientConnected?.Invoke(sender, new ServerEventArgs(client, null));
         }
@@ -75,15 +75,15 @@ namespace WartornNetworking.Server
         /// </summary>
         /// <param name="room">The room.</param>
         /// <param name="package">The package.</param>
-        private void SendPackageToRoom(Room room,Package package)
+        private void SendPackageToRoom(Room room, Package package)
         {
-            foreach (KeyValuePair<long,Client> kvp in room.clients)
+            foreach (KeyValuePair<long, Client> kvp in room.clients)
             {
                 SendPackageToClient(kvp.Value, package);
             }
         }
 
-        private void SendPackageToClient(Client client,Package package)
+        private void SendPackageToClient(Client client, Package package)
         {
             string data = JsonConvert.SerializeObject(package);
             server.WriteLine(client.tcpclient, data);
@@ -150,7 +150,8 @@ namespace WartornNetworking.Server
                     case Commands.Message:
                         var datas = msg.data.Split('|');
                         //parse receiver clientid...
-                        long.TryParse(datas[0], out long clientID);
+                        long clientID = 0;
+                        long.TryParse(datas[0], out clientID);
                         Client receiver = FindClient(clientID);
                         //check if receiver is connected
                         if (receiver != null)
@@ -237,7 +238,8 @@ namespace WartornNetworking.Server
                     //<roomID>
                     case Commands.JoinRoom:
                         //parse roomID
-                        long.TryParse(msg.data, out long roomID);
+                        long roomID = 0;
+                        long.TryParse(msg.data, out roomID);
                         //check if that room exist
                         room = FindRoom(roomID);
                         if (room != null)
@@ -305,7 +307,7 @@ namespace WartornNetworking.Server
 
             CheckAndClearEmptyRoom();
 
-            ClientDisconnected?.Invoke(sender,new ServerEventArgs(client,null));
+            ClientDisconnected?.Invoke(sender, new ServerEventArgs(client, null));
         }
 
         private void CheckAndClearEmptyRoom()
@@ -329,7 +331,7 @@ namespace WartornNetworking.Server
 
         #region public method
 
-        public void SendMessage(Client client,string message)
+        public void SendMessage(Client client, string message)
         {
             Package package = new Package(Messages.Request, Commands.Message, "server" + "|" + message);
             SendPackageToClient(client, package);
@@ -351,7 +353,7 @@ namespace WartornNetworking.Server
     {
         public Client client { get; set; }
         public Package package { get; set; }
-        public ServerEventArgs(Client client,Package package)
+        public ServerEventArgs(Client client, Package package)
         {
             this.client = client;
             this.package = package;
