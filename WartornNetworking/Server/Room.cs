@@ -5,22 +5,23 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using WartornNetworking.Utility;
 
 namespace WartornNetworking.Server
 {
-    public class Room :IEquatable<Room>
+    public class Room : IEquatable<Room>
     {
         public string name { get; set; }
-        public readonly string roomID;
-        public Dictionary<string,Client> clients { get; private set; }
+        public readonly long roomID;
+        public Dictionary<long, Client> clients { get; private set; }
 
         public int ClientsCount { get { return clients.Keys.Count; } }
 
         public Room()
         {
-            roomID = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-            name = roomID;
-            clients = new Dictionary<string, Client>();
+            roomID = RandomIdGenerator.GetBase62inLong(10);
+            name = roomID.ToString();
+            clients = new Dictionary<long, Client>();
         }
 
         public void AddClient(Client client)
@@ -34,14 +35,14 @@ namespace WartornNetworking.Server
 
         public void RemoveClient(Client client)
         {
-            client.roomID = string.Empty;
+            client.roomID = -1;
             clients.Remove(client.clientID);
         }
 
         public void RemoveClient(TcpClient tcpclient)
         {
-            string markedForRemove = string.Empty;
-            foreach (string key in clients.Keys)
+            long markedForRemove = -1;
+            foreach (long key in clients.Keys)
             {
                 if (clients[key].tcpclient == tcpclient)
                 {
@@ -49,7 +50,7 @@ namespace WartornNetworking.Server
                     break;
                 }
             }
-            if (!string.IsNullOrEmpty(markedForRemove))
+            if (markedForRemove != -1)
             {
                 clients.Remove(markedForRemove);
             }
@@ -78,7 +79,7 @@ namespace WartornNetworking.Server
 
         public bool Equals(Room other)
         {
-            return string.Compare(this.roomID, other.roomID) == 0;
+            return this.roomID == other.roomID;
         }
 
         public static bool operator ==(Room room1, Room room2)
@@ -86,7 +87,7 @@ namespace WartornNetworking.Server
             return room1.Equals(room2);
         }
 
-        public static bool operator !=(Room room1,Room room2)
+        public static bool operator !=(Room room1, Room room2)
         {
             return !room1.Equals(room2);
         }

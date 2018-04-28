@@ -31,11 +31,11 @@ namespace WartornNetworking.Server
         public SimpleTcpServer server { get; private set;}
 
         //list of client that is connected
-        public Dictionary<string, Client> clients { get; private set; }
+        public Dictionary<long, Client> clients { get; private set; }
         //room for client that is not in any room
         public Room hall { get; private set; }
         //list of room
-        public Dictionary<string, Room> rooms { get; private set; }
+        public Dictionary<long, Room> rooms { get; private set; }
 
         public event EventHandler<ServerEventArgs> ClientConnected;
         public event EventHandler<ServerEventArgs> ClientDisconnected;
@@ -52,8 +52,8 @@ namespace WartornNetworking.Server
             server.ClientDisconnected += Server_ClientDisconnected;
             server.DelimiterDataReceived += Server_DelimiterDataReceived;
 
-            clients = new Dictionary<string, Client>();
-            rooms = new Dictionary<string, Room>();
+            clients = new Dictionary<long, Client>();
+            rooms = new Dictionary<long, Room>();
 
             hall = new Room();
             hall.name = "Hall";
@@ -77,7 +77,7 @@ namespace WartornNetworking.Server
         /// <param name="package">The package.</param>
         private void SendPackageToRoom(Room room,Package package)
         {
-            foreach (KeyValuePair<string,Client> kvp in room.clients)
+            foreach (KeyValuePair<long,Client> kvp in room.clients)
             {
                 SendPackageToClient(kvp.Value, package);
             }
@@ -97,7 +97,7 @@ namespace WartornNetworking.Server
             return FindRoom(client.roomID);
         }
 
-        private Room FindRoom(string roomId)
+        private Room FindRoom(long roomId)
         {
             if (rooms.ContainsKey(roomId))
             {
@@ -109,7 +109,7 @@ namespace WartornNetworking.Server
             }
         }
 
-        private Client FindClient(string clientId)
+        private Client FindClient(long clientId)
         {
             if (clients.ContainsKey(clientId))
             {
@@ -150,7 +150,8 @@ namespace WartornNetworking.Server
                     case Commands.Message:
                         var datas = msg.data.Split('|');
                         //parse receiver clientid...
-                        Client receiver = FindClient(datas[0]);
+                        long.TryParse(datas[0], out long clientID);
+                        Client receiver = FindClient(clientID);
                         //check if receiver is connected
                         if (receiver != null)
                         {
@@ -235,8 +236,10 @@ namespace WartornNetworking.Server
                     //package data content:
                     //<roomID>
                     case Commands.JoinRoom:
+                        //parse roomID
+                        long.TryParse(msg.data, out long roomID);
                         //check if that room exist
-                        room = FindRoom(msg.data);
+                        room = FindRoom(roomID);
                         if (room != null)
                         {
                             //remove the client from the currently resided room
@@ -307,7 +310,7 @@ namespace WartornNetworking.Server
 
         private void CheckAndClearEmptyRoom()
         {
-            List<string> markedforremoval = new List<string>();
+            List<long> markedforremoval = new List<long>();
             foreach (var kvp in rooms)
             {
                 //check if the room is empty and not the <hall>
@@ -317,7 +320,7 @@ namespace WartornNetworking.Server
                     markedforremoval.Add(kvp.Key);
                 }
             }
-            foreach (string room in markedforremoval)
+            foreach (long room in markedforremoval)
             {
                 rooms.Remove(room);
                 File.AppendAllText("log.txt", room + " removed for having no active client." + Environment.NewLine);

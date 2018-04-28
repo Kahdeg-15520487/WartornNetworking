@@ -8,21 +8,22 @@ using System.Text;
 using System.Threading.Tasks;
 using WartornNetworking.SimpleTcp;
 using WartornNetworking.SimpleTCP.Server;
+using WartornNetworking.Utility;
 
 namespace WartornNetworking.Server
 {
     public class Client : IEquatable<Client>
     {
-        public readonly string clientID;
+        public readonly long clientID;
         public readonly TcpClient tcpclient;
 
-        public string roomID { get; set; } = string.Empty;
+        public long roomID { get; set; } = -1;
         public IPEndPoint IP { get { return (IPEndPoint)tcpclient.Client.RemoteEndPoint; } }
         public TcpState State { get { return tcpclient.GetState(); } }
 
         public Client(TcpClient c)
         {
-            clientID = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            clientID = RandomIdGenerator.GetBase62inLong(10);
             tcpclient = c;
         }
 
@@ -45,7 +46,7 @@ namespace WartornNetworking.Server
 
         public bool Equals(Client other)
         {
-            return string.Compare(this.clientID, other.clientID) == 0 || this.tcpclient.IsEqual(other.tcpclient);
+            return this.clientID == other.clientID || this.tcpclient.IsEqual(other.tcpclient);
         }
 
         public static bool operator ==(Client client1, Client client2)

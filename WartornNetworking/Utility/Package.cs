@@ -21,6 +21,12 @@ namespace WartornNetworking
                 commands = cmds;
                 this.data = data;
             }
+            public Package(Messages msgs, Commands cmds, object data)
+            {
+                messages = msgs;
+                commands = cmds;
+                this.data = data.ToString();
+            }
 
             public Package(string package)
             {

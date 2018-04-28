@@ -59,6 +59,7 @@
     <Compile Include="Utility\Constants.cs" />
     <Compile Include="Utility\ExtensionMethod.cs" />
     <Compile Include="Utility\Package.cs" />
+    <Compile Include="Utility\RandomIDGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
